@@ -1,0 +1,71 @@
+@model Product
+@{
+    ViewData["Title"] = "Add Product";
+}
+
+<div style="max-width:700px;">
+    <h2><i class="fa-solid fa-plus-circle" style="color:var(--accent-gold);"></i> Add New Product</h2>
+
+    <form class="admin-form" asp-action="Create" method="post" enctype="multipart/form-data" style="margin-top:24px;">
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px;">
+            <div class="form-group" style="grid-column:1/-1;">
+                <label asp-for="Name">Product Name</label>
+                <input asp-for="Name" class="form-control" placeholder="e.g. Oversized Graphic Hoodie" />
+                <span asp-validation-for="Name" class="text-danger"></span>
+            </div>
+            <div class="form-group" style="grid-column:1/-1;">
+                <label asp-for="Description">Description</label>
+                <textarea asp-for="Description" class="form-control" rows="3" placeholder="Describe the product..."></textarea>
+            </div>
+            <div class="form-group">
+                <label asp-for="Category">Category</label>
+                <select asp-for="Category" class="form-control">
+                    <option>Men</option>
+                    <option>Women</option>
+                    <option>Unisex</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label asp-for="Style">Style</label>
+                <select asp-for="Style" class="form-control">
+                    <option>Casual</option>
+                    <option>Oversized</option>
+                    <option>Frock</option>
+                    <option>Jacket</option>
+                    <option>Hoodie</option>
+                    <option>Formal</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label asp-for="Color">Color</label>
+                <input asp-for="Color" class="form-control" type="text" placeholder="e.g. Black, Navy Blue" />
+            </div>
+            <div class="form-group">
+                <label asp-for="AvailableSizes">Available Sizes</label>
+                <input asp-for="AvailableSizes" class="form-control" type="text" placeholder="e.g. S,M,L,XL" />
+                <small style="color:var(--text-muted);">Comma-separated values</small>
+            </div>
+            <div class="form-group">
+                <label asp-for="Price">Price (Rs.)</label>
+                <input asp-for="Price" class="form-control" type="number" step="0.01" min="0" />
+            </div>
+            <div class="form-group">
+                <label asp-for="StockQuantity">Stock Quantity</label>
+                <input asp-for="StockQuantity" class="form-control" type="number" min="0" />
+            </div>
+        </div>
+        <div class="form-group" style="margin-top:16px;">
+            <label><input type="checkbox" asp-for="IsFeatured" style="width:auto; margin-right:8px;" /> Show as Featured on Home page</label>
+        </div>
+        <div class="form-group">
+            <label>Product Image</label>
+            <input type="file" name="imageFile" accept=".jpg,.jpeg,.png,.webp" />
+            <small style="color:var(--text-muted);">Uploads to <code>/images/products</code></small>
+        </div>
+
+        <div style="display:flex; gap:12px; margin-top:24px;">
+            <button type="submit" class="btn"><i class="fa-solid fa-check"></i> Save Product</button>
+            <a asp-action="Index" class="btn btn-dark">Cancel</a>
+        </div>
+    </form>
+</div>

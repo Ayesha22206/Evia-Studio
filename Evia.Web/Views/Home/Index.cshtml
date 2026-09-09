@@ -1,0 +1,85 @@
+@model List<Product>
+@{
+    ViewData["Title"] = "Home";
+}
+
+<!-- Hero Section -->
+<section class="hero" style="text-align:center; padding:80px 20px 60px;">
+    <h1 style="font-size:clamp(32px, 5vw, 56px); font-weight:900; letter-spacing:-1px; line-height:1.1;">
+        Wear What You <span style="background:linear-gradient(135deg, var(--accent-gold), var(--accent-rose)); -webkit-background-clip:text; -webkit-text-fill-color:transparent;">Imagine</span>
+    </h1>
+    <p style="max-width:600px; margin:20px auto 30px; font-size:18px; color:var(--text-secondary); line-height:1.6;">
+        EVIA brings you trendy ready-to-wear fashion and a one-of-a-kind "Design Your Own" studio where your outfit starts with your imagination.
+    </p>
+    <div style="display:flex; gap:16px; justify-content:center; flex-wrap:wrap;">
+        <a class="btn" asp-controller="Design" asp-action="Index" style="padding:14px 32px; font-size:16px;">
+            <i class="fa-solid fa-wand-magic-sparkles"></i> Start Designing
+        </a>
+        <a class="btn btn-dark" asp-controller="Shop" asp-action="Index" style="padding:14px 32px; font-size:16px;">
+            <i class="fa-solid fa-bag-shopping"></i> Shop Collection
+        </a>
+    </div>
+</section>
+
+<!-- Feature Highlights -->
+<section style="padding:40px 0 60px;">
+    <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(250px, 1fr)); gap:24px; max-width:1000px; margin:0 auto; padding:0 20px;">
+        <div class="panel" style="padding:30px; text-align:center;">
+            <i class="fa-solid fa-palette" style="font-size:32px; color:var(--accent-gold); margin-bottom:12px;"></i>
+            <h3 style="font-size:16px; margin-bottom:8px;">Custom Design Studio</h3>
+            <p style="font-size:13px; color:var(--text-muted); line-height:1.5;">Pick your garment, color, fabric & pattern. Add your own text. Make it uniquely yours.</p>
+        </div>
+        <div class="panel" style="padding:30px; text-align:center;">
+            <i class="fa-solid fa-truck-fast" style="font-size:32px; color:var(--accent-rose); margin-bottom:12px;"></i>
+            <h3 style="font-size:16px; margin-bottom:8px;">Fast Delivery</h3>
+            <p style="font-size:13px; color:var(--text-muted); line-height:1.5;">Track your order in real-time from processing to your doorstep across Pakistan.</p>
+        </div>
+        <div class="panel" style="padding:30px; text-align:center;">
+            <i class="fa-solid fa-shield-halved" style="font-size:32px; color:#10b981; margin-bottom:12px;"></i>
+            <h3 style="font-size:16px; margin-bottom:8px;">Secure Payments</h3>
+            <p style="font-size:13px; color:var(--text-muted); line-height:1.5;">Pay via COD, Credit/Debit Card, JazzCash or EasyPaisa — safe and simple.</p>
+        </div>
+    </div>
+</section>
+
+<!-- Featured Products -->
+<section class="section" style="padding-bottom:60px;">
+    <h2 style="text-align:center; margin-bottom:32px;">
+        <i class="fa-solid fa-star" style="color:var(--accent-gold);"></i> Featured Pieces
+    </h2>
+
+    @if (!Model.Any())
+    {
+        <p style="text-align:center; color:var(--text-muted);">New arrivals coming soon — stay tuned!</p>
+    }
+    else
+    {
+        <div class="product-grid">
+            @foreach (var product in Model)
+            {
+                <div class="product-card">
+                    <img src="@product.ImageUrl" alt="@product.Name" onerror="this.src='https://via.placeholder.com/400x500?text=EVIA'" />
+                    <div class="info">
+                        <h3>@product.Name</h3>
+                        <span class="tag">@product.Category &middot; @product.Style</span>
+                        <span class="price">Rs. @product.Price.ToString("N0")</span>
+                        <a class="btn btn-dark" asp-controller="Shop" asp-action="Details" asp-route-id="@product.Id">
+                            <i class="fa-solid fa-eye"></i> View Details
+                        </a>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+</section>
+
+<!-- CTA Banner -->
+<section class="panel" style="padding:50px 30px; text-align:center; margin:0 20px 40px; border:1px solid var(--accent-gold)33;">
+    <h2 style="font-size:24px; margin-bottom:12px;">Ready to Create Your Dream Outfit?</h2>
+    <p style="color:var(--text-muted); margin-bottom:24px; max-width:500px; margin-left:auto; margin-right:auto;">
+        Our Design Studio lets you customize every detail — garment type, color, fabric, pattern, and even add your own text.
+    </p>
+    <a class="btn" asp-controller="Design" asp-action="Index" style="padding:14px 36px; font-size:16px;">
+        <i class="fa-solid fa-wand-magic-sparkles"></i> Open Design Studio
+    </a>
+</section>

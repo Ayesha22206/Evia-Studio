@@ -1,0 +1,80 @@
+@model List<Product>
+@{
+    ViewData["Title"] = "Product Catalog";
+}
+
+<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:24px;">
+    <h2><i class="fa-solid fa-shirt" style="color:var(--accent-gold);"></i> Product Catalog</h2>
+    <a class="btn" asp-action="Create"><i class="fa-solid fa-plus"></i> Add Product</a>
+</div>
+
+@if (!Model.Any())
+{
+    <div class="panel" style="padding:40px; text-align:center;">
+        <p style="color:var(--text-muted);">No products in catalog. Click "Add Product" to get started.</p>
+    </div>
+}
+else
+{
+    <table class="admin-table" style="font-size:13px;">
+        <thead>
+            <tr>
+                <th>Image</th>
+                <th>Name</th>
+                <th>Category</th>
+                <th>Style</th>
+                <th>Color</th>
+                <th>Sizes</th>
+                <th>Price</th>
+                <th>Stock</th>
+                <th>Featured</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var p in Model)
+            {
+                var stockColor = p.StockQuantity < 10 ? "#ef4444" : (p.StockQuantity < 30 ? "#d97706" : "#10b981");
+                <tr>
+                    <td>
+                        <img src="@p.ImageUrl" alt="@p.Name"
+                             style="width:50px; height:60px; object-fit:cover; border-radius:6px;"
+                             onerror="this.src='https://via.placeholder.com/50x60?text=EVIA'" />
+                    </td>
+                    <td style="font-weight:600;">@p.Name</td>
+                    <td>@p.Category</td>
+                    <td>@p.Style</td>
+                    <td>
+                        <span style="display:inline-flex; align-items:center; gap:4px;">
+                            <span style="display:inline-block; width:14px; height:14px; border-radius:50%; background:@(p.Color ?? "#ccc"); border:1px solid #555;"></span>
+                            @(p.Color ?? "—")
+                        </span>
+                    </td>
+                    <td style="font-size:11px;">@(p.AvailableSizes ?? "—")</td>
+                    <td style="font-weight:700;">Rs. @p.Price.ToString("N0")</td>
+                    <td style="color:@stockColor; font-weight:700;">@p.StockQuantity</td>
+                    <td>
+                        @if (p.IsFeatured)
+                        {
+                            <i class="fa-solid fa-star" style="color:var(--accent-gold);"></i>
+                        }
+                        else
+                        {
+                            <span style="color:var(--text-muted);">—</span>
+                        }
+                    </td>
+                    <td>
+                        <div style="display:flex; gap:6px;">
+                            <a class="btn btn-dark" style="padding:4px 12px; font-size:12px;" asp-action="Edit" asp-route-id="@p.Id">
+                                <i class="fa-solid fa-pen"></i> Edit
+                            </a>
+                            <a class="btn" style="padding:4px 12px; font-size:12px; background:#c0392b; color:white;" asp-action="Delete" asp-route-id="@p.Id">
+                                <i class="fa-solid fa-trash"></i>
+                            </a>
+                        </div>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}

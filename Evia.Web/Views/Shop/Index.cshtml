@@ -1,0 +1,124 @@
+@model List<Product>
+@{
+    ViewData["Title"] = "Shop Fashion Catalog";
+    string currentCat = ViewBag.Category as string ?? "All";
+}
+
+<section class="section">
+    <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:16px; margin-bottom:24px;">
+        <h2><i class="fa-solid fa-shirt" style="color:var(--accent-gold);"></i> Ready-to-Wear Collection</h2>
+
+        <!-- Category Pills -->
+        <div style="display:flex; gap:8px; flex-wrap:wrap;">
+            @foreach (var cat in new[] { "All", "Men", "Women", "Unisex" })
+            {
+                <a href="@Url.Action("Index", "Shop", new { category = cat == "All" ? "" : cat, style = ViewBag.Style, q = ViewBag.Query, sort = ViewBag.Sort })"
+                   class="btn @(currentCat == cat || (cat == "All" && string.IsNullOrEmpty(currentCat)) ? "" : "btn-secondary")"
+                   style="padding:8px 16px; font-size:14px; min-height:38px;">
+                    @cat
+                </a>
+            }
+        </div>
+    </div>
+
+    <!-- HCI Filter & Sorting Bar -->
+    <form method="get" class="panel" style="padding:20px; margin-bottom:30px;">
+        <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(180px, 1fr)); gap:14px; align-items:end;">
+            <div>
+                <label style="font-size:12px; font-weight:600; color:var(--text-muted); display:block; margin-bottom:6px;">Style</label>
+                <select name="style" class="form-select">
+                    <option value="">All Styles</option>
+                    <option value="Casual" selected="@(ViewBag.Style == "Casual")">Casual</option>
+                    <option value="Oversized" selected="@(ViewBag.Style == "Oversized")">Oversized</option>
+                    <option value="Frock" selected="@(ViewBag.Style == "Frock")">Frock</option>
+                    <option value="Jacket" selected="@(ViewBag.Style == "Jacket")">Jacket</option>
+                    <option value="Hoodie" selected="@(ViewBag.Style == "Hoodie")">Hoodie</option>
+                    <option value="Formal" selected="@(ViewBag.Style == "Formal")">Formal</option>
+                </select>
+            </div>
+            <div>
+                <label style="font-size:12px; font-weight:600; color:var(--text-muted); display:block; margin-bottom:6px;">Color</label>
+                <select name="color" class="form-select">
+                    <option value="">All Colors</option>
+                    <option value="Black" selected="@(ViewBag.Color == "Black")">Black</option>
+                    <option value="White" selected="@(ViewBag.Color == "White")">White</option>
+                    <option value="Red" selected="@(ViewBag.Color == "Red")">Red</option>
+                    <option value="Blue" selected="@(ViewBag.Color == "Blue")">Blue</option>
+                    <option value="Navy" selected="@(ViewBag.Color == "Navy")">Navy</option>
+                    <option value="Grey" selected="@(ViewBag.Color == "Grey")">Grey</option>
+                </select>
+            </div>
+            <div>
+                <label style="font-size:12px; font-weight:600; color:var(--text-muted); display:block; margin-bottom:6px;">Sort By</label>
+                <select name="sort" class="form-select">
+                    <option value="">Newest Arrivals</option>
+                    <option value="price_asc" selected="@(ViewBag.Sort == "price_asc")">Price: Low to High</option>
+                    <option value="price_desc" selected="@(ViewBag.Sort == "price_desc")">Price: High to Low</option>
+                    <option value="popular" selected="@(ViewBag.Sort == "popular")">Most Popular</option>
+                </select>
+            </div>
+            <div>
+                <label style="font-size:12px; font-weight:600; color:var(--text-muted); display:block; margin-bottom:6px;">Keyword</label>
+                <input type="text" name="q" class="form-control" placeholder="Search..." value="@ViewBag.Query" />
+            </div>
+            <div>
+                <button class="btn" type="submit" style="width:100%;">
+                    <i class="fa-solid fa-filter"></i> Apply Filters
+                </button>
+            </div>
+        </div>
+    </form>
+
+    @if (Model.Count == 0)
+    {
+        <div class="panel" style="text-align:center; padding:60px 20px;">
+            <i class="fa-solid fa-box-open" style="font-size:48px; color:var(--text-muted); margin-bottom:16px;"></i>
+            <h3>No products found matching your filters</h3>
+            <p style="color:var(--text-muted); margin-top:8px;">Try clearing filters or search terms.</p>
+            <a href="@Url.Action("Index", "Shop")" class="btn btn-secondary" style="margin-top:20px;">Clear Filters</a>
+        </div>
+    }
+    else
+    {
+        <div class="product-grid">
+            @foreach (var product in Model)
+            {
+                <div class="product-card">
+                    <div style="position:relative;">
+                        <img src="@product.ImageUrl" alt="@product.Name" onerror="this.src='/images/product-placeholder.jpg'" />
+                        @if (product.StockQuantity < 10 && product.StockQuantity > 0)
+                        {
+                            <span class="badge-status badge-pending" style="position:absolute; top:12px; left:12px; font-size:10px;">Low Stock (@product.StockQuantity left)</span>
+                        }
+                        else if (product.IsFeatured)
+                        {
+                            <span class="badge-status badge-delivered" style="position:absolute; top:12px; left:12px; font-size:10px; background:var(--accent-gold); color:black;">Featured</span>
+                        }
+                    </div>
+
+                    <div class="info">
+                        <div class="meta">
+                            <span>@product.Category &bull; @product.Style</span>
+                            <span>Color: @product.Color</span>
+                        </div>
+                        <h3 class="title">@product.Name</h3>
+                        <span class="price">Rs. @product.Price.ToString("N0")</span>
+                        
+                        <div style="display:flex; gap:8px; margin-top:10px;">
+                            <a class="btn btn-secondary" asp-controller="Shop" asp-action="Details" asp-route-id="@product.Id" style="flex:1;">
+                                <i class="fa-solid fa-circle-info"></i> Details
+                            </a>
+                            <form asp-controller="Cart" asp-action="AddProduct" method="post" style="flex:1;">
+                                <input type="hidden" name="productId" value="@product.Id" />
+                                <button type="submit" class="btn" style="width:100%;">
+                                    <i class="fa-solid fa-cart-plus"></i> Add
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+</section>
+

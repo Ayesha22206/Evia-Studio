@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Admin - @ViewData["Title"] - EVIA</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/admin.css" asp-append-version="true" />
+</head>
+<body>
+    <div class="admin-shell">
+        <aside class="admin-sidebar">
+            <div class="logo" style="margin-bottom:30px;">EVIA <span style="color:#ff9800;">Admin</span></div>
+            <nav>
+                <ul>
+                    <li><a asp-area="Admin" asp-controller="Dashboard" asp-action="Index"><i class="fa-solid fa-gauge"></i> Dashboard</a></li>
+                    <li><a asp-area="Admin" asp-controller="Products" asp-action="Index"><i class="fa-solid fa-shirt"></i> Products</a></li>
+                    <li><a asp-area="Admin" asp-controller="Dashboard" asp-action="Orders"><i class="fa-solid fa-receipt"></i> Orders</a></li>
+                    <li><a asp-area="Admin" asp-controller="Dashboard" asp-action="CustomDesigns"><i class="fa-solid fa-wand-magic-sparkles"></i> Custom Designs</a></li>
+                    <li><a asp-area="Admin" asp-controller="Dashboard" asp-action="Messages"><i class="fa-solid fa-envelope"></i> Messages</a></li>
+                    <li><a asp-area="" asp-controller="Home" asp-action="Index"><i class="fa-solid fa-arrow-left"></i> Back to Site</a></li>
+                    
+                    <li style="margin-top: 20px;">
+                        <form class="form-inline" asp-area="Identity" asp-page="/Account/Logout" asp-route-returnUrl="@Url.Action("Index", "Home", new { area = "" })" method="post">
+                            <button type="submit" style="background:none; border:none; padding:12px 14px; width:100%; text-align:left; color:#fb7185; border-radius:10px; font-size:15px; cursor:pointer; transition:0.2s;" onmouseover="this.style.background='rgba(251, 113, 133, 0.1)';" onmouseout="this.style.background='none';">
+                                <i class="fa-solid fa-right-from-bracket" style="margin-right:8px;"></i> Logout
+                            </button>
+                        </form>
+                    </li>
+                </ul>
+            </nav>
+        </aside>
+        <main class="admin-content">
+            @if (TempData["Message"] != null)
+            {
+                <div class="admin-alert">@TempData["Message"]</div>
+            }
+            @RenderBody()
+        </main>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

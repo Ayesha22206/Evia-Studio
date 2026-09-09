@@ -1,0 +1,101 @@
+@page
+@model LoginModel
+@{
+    ViewData["Title"] = "Sign In";
+}
+
+<div class="auth-card-header">
+    <h2>Welcome back 👋</h2>
+    <p>Sign in to your EVIA account to continue</p>
+</div>
+
+@if (!ViewData.ModelState.IsValid)
+{
+    <div class="auth-error-summary">
+        <i class="fa-solid fa-circle-exclamation" style="margin-right:6px;"></i>
+        <asp-validation-summary asp-validation-type="All" />
+    </div>
+}
+
+<form id="account" method="post">
+    @Html.AntiForgeryToken()
+
+    <div class="auth-form-group">
+        <label asp-for="Input.Email">Email Address</label>
+        <div class="auth-input-wrapper">
+            <input asp-for="Input.Email"
+                   class="auth-input"
+                   id="login-email"
+                   autocomplete="username"
+                   placeholder="you@example.com"
+                   type="email" />
+            <i class="fa-solid fa-envelope auth-input-icon"></i>
+        </div>
+        <span asp-validation-for="Input.Email" class="auth-validation"></span>
+    </div>
+
+    <div class="auth-form-group">
+        <label asp-for="Input.Password">Password</label>
+        <div class="auth-input-wrapper">
+            <input asp-for="Input.Password"
+                   class="auth-input"
+                   id="login-password"
+                   autocomplete="current-password"
+                   placeholder="Enter your password"
+                   type="password" />
+            <i class="fa-solid fa-lock auth-input-icon"></i>
+            <button type="button" class="password-toggle" id="toggleLoginPassword" aria-label="Show password">
+                <i class="fa-solid fa-eye" id="toggleLoginIcon"></i>
+            </button>
+        </div>
+        <span asp-validation-for="Input.Password" class="auth-validation"></span>
+    </div>
+
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+        <div class="auth-checkbox-row" style="margin-bottom:0;">
+            <input asp-for="Input.RememberMe" class="auth-checkbox" id="remember-me" type="checkbox" />
+            <label class="auth-checkbox-label" asp-for="Input.RememberMe">Remember me</label>
+        </div>
+        <div>
+            <a asp-page="./ForgotPassword" style="font-size:13px; color:#64748b; transition:color 0.3s;"
+               onmouseover="this.style.color='#e5b869'" onmouseout="this.style.color='#64748b'">
+                Forgot password?
+            </a>
+        </div>
+    </div>
+
+    <button type="submit" id="login-submit" class="auth-btn">
+        <i class="fa-solid fa-right-to-bracket"></i>
+        Sign In to EVIA
+    </button>
+</form>
+
+<div class="auth-switch">
+    Don't have an account?
+    <a asp-page="./Register" asp-route-returnUrl="@Model.ReturnUrl">Create one — it's free</a>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        // Password toggle
+        $('#toggleLoginPassword').click(function () {
+            var input = $('#login-password');
+            var icon = $('#toggleLoginIcon');
+            if (input.attr('type') === 'password') {
+                input.attr('type', 'text');
+                icon.removeClass('fa-eye').addClass('fa-eye-slash');
+            } else {
+                input.attr('type', 'password');
+                icon.removeClass('fa-eye-slash').addClass('fa-eye');
+            }
+        });
+
+        // Focus animations
+        $('.auth-input').on('focus', function () {
+            $(this).closest('.auth-input-wrapper').find('.auth-input-icon').css('color', '#e5b869');
+        }).on('blur', function () {
+            $(this).closest('.auth-input-wrapper').find('.auth-input-icon').css('color', '#64748b');
+        });
+    </script>
+}

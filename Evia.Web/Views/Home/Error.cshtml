@@ -1,0 +1,15 @@
+@model Evia.Web.Controllers.ErrorViewModel
+@{
+    ViewData["Title"] = "Error";
+}
+
+<section class="section">
+    <div class="panel" style="text-align:center;">
+        <h2>An error occurred</h2>
+        <p>Sorry, something went wrong while processing your request.</p>
+        @if (Model.ShowRequestId)
+        {
+            <p><small>Request ID: @Model.RequestId</small></p>
+        }
+    </div>
+</section>

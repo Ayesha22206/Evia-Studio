@@ -1,0 +1,81 @@
+@model List<CustomDesign>
+@{
+    ViewData["Title"] = "My Saved Designs";
+}
+
+<section class="section">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:30px;">
+        <h2><i class="fa-solid fa-palette" style="color:var(--accent-gold);"></i> My Saved Custom Designs</h2>
+        <a asp-controller="Design" asp-action="Index" class="btn">
+            <i class="fa-solid fa-plus"></i> Create New Design
+        </a>
+    </div>
+
+    @if (Model.Count == 0)
+    {
+        <div class="panel" style="text-align:center; padding:60px 20px;">
+            <i class="fa-solid fa-wand-magic-sparkles" style="font-size:48px; color:var(--accent-gold); margin-bottom:16px;"></i>
+            <h3>No Custom Designs Saved Yet</h3>
+            <p style="color:var(--text-muted); margin:12px 0 24px;">Express your style by customizing colors, fabrics, patterns, and body measurements in our studio.</p>
+            <a asp-controller="Design" asp-action="Index" class="btn">Design Your First Outfit</a>
+        </div>
+    }
+    else
+    {
+        <div class="product-grid">
+            @foreach (var d in Model)
+            {
+                <div class="product-card">
+                    <div style="position:relative; height:240px; background:#0f141c;">
+                        @if (!string.IsNullOrEmpty(d.GeneratedImageUrl))
+                        {
+                            <img src="@d.GeneratedImageUrl" alt="AI preview" style="height:100%; width:100%; object-fit:cover;" />
+                        }
+                        else
+                        {
+                            <div style="width:100%; height:100%; background-color:@d.Color; display:flex; align-items:center; justify-content:center; position:relative;">
+                                <svg viewBox="0 0 200 220" style="width:140px; filter:drop-shadow(0 4px 10px rgba(0,0,0,0.5));">
+                                    <path d="M 60 30 L 80 40 L 120 40 L 140 30 L 180 60 L 155 90 L 145 80 L 145 190 L 55 190 L 55 80 L 45 90 L 20 60 Z" fill="@d.Color" stroke="#e2e8f0" stroke-width="2"/>
+                                </svg>
+                                @if (!string.IsNullOrEmpty(d.CustomText))
+                                {
+                                    <div style="position:absolute; top:45%; left:50%; transform:translate(-50%, -50%); color:@(d.TextColor ?? "#FFFFFF"); font-weight:800; font-size:14px; text-shadow:0 1px 4px rgba(0,0,0,0.9);">
+                                        @d.CustomText
+                                    </div>
+                                }
+                            </div>
+                        }
+                        <span class="badge-status badge-processing" style="position:absolute; top:12px; right:12px; font-size:10px;">@d.Fabric</span>
+                    </div>
+
+                    <div class="info">
+                        <h3 class="title">Custom @d.Style</h3>
+                        <p style="font-size:13px; color:var(--text-muted);">
+                            Size: <strong>@d.Size</strong> &bull; Chest: @d.ChestMeasurement" &bull; Waist: @d.WaistMeasurement"
+                        </p>
+                        @if (!string.IsNullOrEmpty(d.CustomText))
+                        {
+                            <p style="font-size:12px; color:var(--accent-gold);"><i class="fa-solid fa-quote-left"></i> @d.CustomText <i class="fa-solid fa-quote-right"></i></p>
+                        }
+                        <span class="price">Rs. @d.EstimatedPrice.ToString("N0")</span>
+                        
+                        <div style="display:flex; gap:8px; margin-top:12px;">
+                            <form asp-controller="Cart" asp-action="AddCustomDesign" method="post" style="flex:1;">
+                                <input type="hidden" name="designId" value="@d.Id" />
+                                <button type="submit" class="btn" style="width:100%;">
+                                    <i class="fa-solid fa-cart-plus"></i> Add to Cart
+                                </button>
+                            </form>
+                            <form asp-controller="Design" asp-action="Delete" asp-route-id="@d.Id" method="post" onsubmit="return confirm('Delete this saved design?');">
+                                <button type="submit" class="btn btn-danger" style="padding:12px 14px;" title="Delete Design">
+                                    <i class="fa-solid fa-trash"></i>
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+</section>
+

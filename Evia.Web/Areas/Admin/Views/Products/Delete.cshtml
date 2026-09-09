@@ -1,0 +1,41 @@
+@model Product
+@{
+    ViewData["Title"] = "Delete Product";
+}
+
+<div style="max-width:500px;">
+    <h2><i class="fa-solid fa-triangle-exclamation" style="color:#ef4444;"></i> Delete Product</h2>
+
+    <div class="panel" style="padding:30px; margin-top:20px; border:1px solid #ef444444;">
+        @if (!string.IsNullOrEmpty(Model.ImageUrl))
+        {
+            <div style="text-align:center; margin-bottom:16px;">
+                <img src="@Model.ImageUrl" alt="@Model.Name"
+                     style="width:100px; height:120px; object-fit:cover; border-radius:8px; opacity:0.7;"
+                     onerror="this.src='https://via.placeholder.com/100x120?text=EVIA'" />
+            </div>
+        }
+
+        <p style="font-size:15px; text-align:center; margin-bottom:8px;">
+            Are you sure you want to permanently delete
+        </p>
+        <p style="font-size:18px; font-weight:700; text-align:center; color:var(--accent-rose); margin-bottom:8px;">
+            @Model.Name
+        </p>
+        <p style="font-size:13px; text-align:center; color:var(--text-muted);">
+            @Model.Category &middot; @Model.Style &middot; Rs. @Model.Price.ToString("N0")
+        </p>
+        <p style="font-size:12px; text-align:center; color:#ef4444; margin-top:12px;">
+            <i class="fa-solid fa-exclamation-circle"></i> This action cannot be undone.
+        </p>
+
+        <form asp-action="Delete" asp-route-id="@Model.Id" method="post"
+              style="display:flex; gap:12px; justify-content:center; margin-top:24px;">
+            @Html.AntiForgeryToken()
+            <button type="submit" class="btn" style="background:#ef4444; color:white; padding:10px 24px;">
+                <i class="fa-solid fa-trash"></i> Yes, Delete
+            </button>
+            <a asp-action="Index" class="btn btn-dark" style="padding:10px 24px;">Cancel</a>
+        </form>
+    </div>
+</div>

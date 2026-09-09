@@ -1,0 +1,147 @@
+@page
+@model RegisterModel
+@{
+    ViewData["Title"] = "Create Account";
+}
+
+<div class="auth-card-header">
+    <h2>Create your account ✨</h2>
+    <p>Join thousands of EVIA members styling their look</p>
+</div>
+
+@if (!ViewData.ModelState.IsValid)
+{
+    <div class="auth-error-summary">
+        <i class="fa-solid fa-circle-exclamation" style="margin-right:6px;"></i>
+        <asp-validation-summary asp-validation-type="All" />
+    </div>
+}
+
+<form id="registerForm" asp-route-returnUrl="@Model.ReturnUrl" method="post">
+    @Html.AntiForgeryToken()
+
+    <div class="auth-form-group">
+        <label asp-for="Input.FullName">Full Name</label>
+        <div class="auth-input-wrapper">
+            <input asp-for="Input.FullName"
+                   class="auth-input"
+                   id="register-name"
+                   autocomplete="name"
+                   placeholder="Your full name" />
+            <i class="fa-solid fa-user auth-input-icon"></i>
+        </div>
+        <span asp-validation-for="Input.FullName" class="auth-validation"></span>
+    </div>
+
+    <div class="auth-form-group">
+        <label asp-for="Input.Email">Email Address</label>
+        <div class="auth-input-wrapper">
+            <input asp-for="Input.Email"
+                   class="auth-input"
+                   id="register-email"
+                   autocomplete="username"
+                   type="email"
+                   placeholder="you@example.com" />
+            <i class="fa-solid fa-envelope auth-input-icon"></i>
+        </div>
+        <span asp-validation-for="Input.Email" class="auth-validation"></span>
+    </div>
+
+    <div class="auth-form-group">
+        <label asp-for="Input.Password">Password</label>
+        <div class="auth-input-wrapper">
+            <input asp-for="Input.Password"
+                   class="auth-input"
+                   id="register-password"
+                   autocomplete="new-password"
+                   placeholder="Minimum 6 characters"
+                   type="password" />
+            <i class="fa-solid fa-lock auth-input-icon"></i>
+            <button type="button" class="password-toggle" id="toggleRegPassword">
+                <i class="fa-solid fa-eye" id="toggleRegIcon"></i>
+            </button>
+        </div>
+        <span asp-validation-for="Input.Password" class="auth-validation"></span>
+        <!-- Password strength bar -->
+        <div id="passwordStrengthBar" style="margin-top:8px; height:3px; border-radius:4px; background:#1e2d40; overflow:hidden;">
+            <div id="passwordStrengthFill" style="height:100%; width:0%; transition:all 0.4s ease; border-radius:4px;"></div>
+        </div>
+        <div id="passwordStrengthLabel" style="font-size:11px; color:#64748b; margin-top:4px;"></div>
+    </div>
+
+    <div class="auth-form-group">
+        <label asp-for="Input.ConfirmPassword">Confirm Password</label>
+        <div class="auth-input-wrapper">
+            <input asp-for="Input.ConfirmPassword"
+                   class="auth-input"
+                   id="register-confirm-password"
+                   autocomplete="new-password"
+                   placeholder="Repeat your password"
+                   type="password" />
+            <i class="fa-solid fa-shield-check auth-input-icon"></i>
+        </div>
+        <span asp-validation-for="Input.ConfirmPassword" class="auth-validation"></span>
+    </div>
+
+    <button type="submit" id="register-submit" class="auth-btn" style="margin-top:4px;">
+        <i class="fa-solid fa-user-plus"></i>
+        Create My EVIA Account
+    </button>
+</form>
+
+<div class="auth-switch">
+    Already have an account?
+    <a asp-page="./Login" asp-route-returnUrl="@Model.ReturnUrl">Sign in instead</a>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        // Password show/hide
+        $('#toggleRegPassword').click(function () {
+            var input = $('#register-password');
+            var icon = $('#toggleRegIcon');
+            if (input.attr('type') === 'password') {
+                input.attr('type', 'text');
+                icon.removeClass('fa-eye').addClass('fa-eye-slash');
+            } else {
+                input.attr('type', 'password');
+                icon.removeClass('fa-eye-slash').addClass('fa-eye');
+            }
+        });
+
+        // Password strength checker
+        $('#register-password').on('input', function () {
+            var val = $(this).val();
+            var strength = 0;
+            var label = '';
+            var color = '';
+
+            if (val.length >= 6) strength++;
+            if (val.length >= 10) strength++;
+            if (/[A-Z]/.test(val)) strength++;
+            if (/[0-9]/.test(val)) strength++;
+            if (/[^A-Za-z0-9]/.test(val)) strength++;
+
+            var width = (strength / 5) * 100;
+
+            if (strength <= 1) { color = '#e11d48'; label = 'Weak'; }
+            else if (strength <= 2) { color = '#f97316'; label = 'Fair'; }
+            else if (strength <= 3) { color = '#eab308'; label = 'Good'; }
+            else if (strength <= 4) { color = '#22c55e'; label = 'Strong'; }
+            else { color = '#10b981'; label = '💪 Very Strong'; }
+
+            if (!val.length) { color = ''; label = ''; width = 0; }
+
+            $('#passwordStrengthFill').css({ width: width + '%', background: color });
+            $('#passwordStrengthLabel').text(label).css('color', color);
+        });
+
+        // Focus glow animations
+        $('.auth-input').on('focus', function () {
+            $(this).closest('.auth-input-wrapper').find('.auth-input-icon').css('color', '#e5b869');
+        }).on('blur', function () {
+            $(this).closest('.auth-input-wrapper').find('.auth-input-icon').css('color', '#64748b');
+        });
+    </script>
+}

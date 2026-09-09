@@ -1,0 +1,101 @@
+@model List<Order>
+@{
+    ViewData["Title"] = "Manage Orders";
+    var currentStatus = ViewBag.CurrentStatus as string ?? "All";
+    var statuses = new[] { "All", "Pending", "Processing", "Shipped", "Delivered", "Cancelled" };
+}
+
+<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:24px;">
+    <h2><i class="fa-solid fa-boxes-stacked" style="color:var(--accent-gold);"></i> Order Management</h2>
+    <span style="color:var(--text-muted); font-size:14px;">@Model.Count order(s) found</span>
+</div>
+
+<!-- Status Filter Pills -->
+<div style="display:flex; gap:8px; flex-wrap:wrap; margin-bottom:24px;">
+    @foreach (var s in statuses)
+    {
+        var isActive = s == currentStatus;
+        <a asp-action="Orders" asp-route-status="@s"
+           style="padding:8px 18px; border-radius:20px; font-size:13px; font-weight:600; text-decoration:none; transition:all 0.2s;
+                  background:@(isActive ? "var(--accent-gold)" : "var(--surface-alt)");
+                  color:@(isActive ? "#111" : "var(--text-muted)");">
+            @s
+        </a>
+    }
+</div>
+
+@if (!Model.Any())
+{
+    <div class="panel" style="padding:40px; text-align:center;">
+        <i class="fa-solid fa-inbox" style="font-size:48px; color:var(--text-muted); margin-bottom:12px;"></i>
+        <p style="color:var(--text-muted);">No orders match the selected filter.</p>
+    </div>
+}
+else
+{
+    <table class="admin-table" style="font-size:13px;">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Customer</th>
+                <th>Date</th>
+                <th>Items</th>
+                <th>Total</th>
+                <th>Payment</th>
+                <th>Status</th>
+                <th>Update</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var o in Model)
+            {
+                var badgeColor = o.Status switch
+                {
+                    "Pending" => "#d97706",
+                    "Processing" => "#2563eb",
+                    "Shipped" => "#7c3aed",
+                    "Delivered" => "#10b981",
+                    "Cancelled" => "#ef4444",
+                    _ => "#888"
+                };
+                <tr>
+                    <td style="font-weight:700;">#@o.Id</td>
+                    <td>@(o.User?.FullName ?? o.UserId)</td>
+                    <td>@o.CreatedAt.ToString("dd MMM yyyy")</td>
+                    <td>@o.Items.Sum(i => i.Quantity)</td>
+                    <td style="font-weight:700;">Rs. @o.TotalAmount.ToString("N0")</td>
+                    <td>
+                        <span style="font-size:11px;">@(o.PaymentMethod ?? "N/A")</span><br/>
+                        <span style="font-size:11px; color:var(--text-muted);">@(o.PaymentStatus ?? "Pending")</span>
+                    </td>
+                    <td>
+                        <span style="display:inline-block; padding:4px 12px; border-radius:12px; font-size:11px; font-weight:700;
+                                     background:@(badgeColor)22; color:@badgeColor; border:1px solid @(badgeColor)44;">
+                            @o.Status
+                        </span>
+                    </td>
+                    <td>
+                        @if (o.Status != "Delivered" && o.Status != "Cancelled")
+                        {
+                            <form asp-action="UpdateOrderStatus" method="post" style="display:flex; gap:6px; align-items:center;">
+                                @Html.AntiForgeryToken()
+                                <input type="hidden" name="orderId" value="@o.Id" />
+                                <select name="newStatus" style="padding:4px 8px; border-radius:6px; background:var(--surface-alt); color:var(--text-primary); border:1px solid var(--border); font-size:12px;">
+                                    @if (o.Status == "Pending") { <option value="Processing">Processing</option> }
+                                    @if (o.Status == "Pending" || o.Status == "Processing") { <option value="Shipped">Shipped</option> }
+                                    @if (o.Status == "Shipped") { <option value="Delivered">Delivered</option> }
+                                    <option value="Cancelled">Cancelled</option>
+                                </select>
+                                <button type="submit" class="btn" style="padding:4px 12px; font-size:12px;">Go</button>
+                            </form>
+                        }
+                        else
+                        {
+                            <span style="color:var(--text-muted); font-size:12px;">—</span>
+                        }
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}

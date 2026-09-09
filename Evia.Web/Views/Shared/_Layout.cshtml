@@ -1,0 +1,110 @@
+@inject SignInManager<ApplicationUser> SignInManager
+@inject UserManager<ApplicationUser> UserManager
+@using Microsoft.AspNetCore.Http
+@inject IHttpContextAccessor HttpContextAccessor
+@{
+    var sessionJson = HttpContextAccessor.HttpContext?.Session.GetString("EviaCart");
+    int cartCount = 0;
+    if (!string.IsNullOrEmpty(sessionJson))
+    {
+        try {
+            var items = System.Text.Json.JsonSerializer.Deserialize<List<Evia.Web.Controllers.CartItemDto>>(sessionJson);
+            cartCount = items?.Sum(i => i.Quantity) ?? 0;
+        } catch {}
+    }
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - EVIA | Smart Online Fashion Platform</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    @await RenderSectionAsync("Styles", required: false)
+</head>
+<body>
+    <header>
+        <a asp-controller="Home" asp-action="Index" class="logo">
+            <i class="fa-solid fa-vest-patches" style="color:var(--accent-gold);"></i> EVIA <span>STUDIO</span>
+        </a>
+
+        <!-- HCI Live Search Autocomplete -->
+        <div class="search-box-container">
+            <i class="fa-solid fa-magnifying-glass search-icon"></i>
+            <input type="text" id="globalSearchInput" class="search-input" placeholder="Search clothes, hoodies, frocks..." autocomplete="off" />
+            <div id="searchSuggestions" class="search-suggestions-dropdown"></div>
+        </div>
+
+        <nav>
+            <ul>
+                <li><a asp-controller="Home" asp-action="Index"><i class="fa-solid fa-house"></i> Home</a></li>
+                <li><a asp-controller="Shop" asp-action="Index"><i class="fa-solid fa-shirt"></i> Shop</a></li>
+                <li><a asp-controller="Design" asp-action="Index" style="color:var(--accent-gold); font-weight:700;"><i class="fa-solid fa-wand-magic-sparkles"></i> Design Your Own</a></li>
+                <li><a asp-controller="About" asp-action="Index">About</a></li>
+                <li><a asp-controller="Contact" asp-action="Index">Contact</a></li>
+
+                @if (SignInManager.IsSignedIn(User))
+                {
+                    <li><a asp-controller="Design" asp-action="MyDesigns"><i class="fa-solid fa-palette"></i> My Designs</a></li>
+                    <li><a asp-controller="Orders" asp-action="Index"><i class="fa-solid fa-box-open"></i> My Orders</a></li>
+                    @if (User.IsInRole("Admin"))
+                    {
+                        <li><a asp-area="Admin" asp-controller="Dashboard" asp-action="Index" style="color:var(--accent-gold); background:rgba(229,184,105,0.15); border:1px solid var(--accent-gold);"><i class="fa-solid fa-user-shield"></i> Admin</a></li>
+                    }
+                    <li>
+                        <form id="logoutForm" asp-area="Identity" asp-page="/Account/Logout" asp-route-returnUrl="@Url.Action("Index", "Home")" method="post" style="display:inline">
+                            <button type="submit" class="nav-link-btn" style="color:var(--accent-rose);"><i class="fa-solid fa-right-from-bracket"></i> Logout</button>
+                        </form>
+                    </li>
+                }
+                else
+                {
+                    <li><a asp-area="Identity" asp-page="/Account/Login"><i class="fa-solid fa-user"></i> Login</a></li>
+                }
+                <li>
+                    <a asp-controller="Cart" asp-action="Index">
+                        <i class="fa-solid fa-bag-shopping"></i> Cart
+                        @if (cartCount > 0)
+                        {
+                            <span class="cart-badge">@cartCount</span>
+                        }
+                    </a>
+                </li>
+            </ul>
+        </nav>
+    </header>
+
+    <div class="toast-container" id="toastContainer">
+        @if (TempData["SuccessMessage"] != null)
+        {
+            <div class="toast-item"><i class="fa-solid fa-circle-check" style="color:#10b981; font-size:20px;"></i> @TempData["SuccessMessage"]</div>
+        }
+        @if (TempData["ErrorMessage"] != null)
+        {
+            <div class="toast-item" style="border-color:var(--accent-rose);"><i class="fa-solid fa-circle-xmark" style="color:var(--accent-rose); font-size:20px;"></i> @TempData["ErrorMessage"]</div>
+        }
+        @if (TempData["InfoMessage"] != null)
+        {
+            <div class="toast-item"><i class="fa-solid fa-circle-info" style="color:#3b82f6; font-size:20px;"></i> @TempData["InfoMessage"]</div>
+        }
+    </div>
+
+    <main role="main">
+        @RenderBody()
+    </main>
+
+    <footer>
+        <p>&copy; @DateTime.Now.Year EVIA — Smart Online Fashion Platform. All rights reserved.</p>
+        <p style="font-size:12px; margin-top:8px; color:var(--text-muted);">Crafted with HCI Principles &amp; ASP.NET Core for Govt M.A.O Graduate College / University of the Punjab</p>
+    </footer>
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>
+

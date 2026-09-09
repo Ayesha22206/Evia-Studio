@@ -1,0 +1,349 @@
+@{
+    ViewData["Title"] = "Design Your Own Studio";
+}
+
+<div class="design-studio-container">
+
+    <!-- LEFT SIDE: CUSTOMIZATION FORM -->
+    <div class="panel">
+
+        <h2 style="font-size:26px; margin-bottom:24px; color:var(--accent-gold);">
+            <i class="fa-solid fa-wand-magic-sparkles"></i> Outfit Customization Studio
+        </h2>
+
+        <div class="form-group">
+            <label><i class="fa-solid fa-palette"></i> Select Color</label>
+            <div class="real-color-picker">
+                <div class="current-color">
+                    <div class="current-color-box" style="background:#111111;"></div>
+                    <span class="color-name">#111111</span>
+                </div>
+                <input type="color" id="colorPicker" value="#111111">
+            </div>
+            <div class="swatch-group">
+                <div class="color-swatch active" style="background:#111111;" data-color="#111111" title="Black"></div>
+                <div class="color-swatch" style="background:#e11d48;" data-color="#e11d48" title="Rose Red"></div>
+                <div class="color-swatch" style="background:#2563eb;" data-color="#2563eb" title="Royal Blue"></div>
+                <div class="color-swatch" style="background:#059669;" data-color="#059669" title="Emerald Green"></div>
+                <div class="color-swatch" style="background:#e5b869;" data-color="#e5b869" title="Gold"></div>
+                <div class="color-swatch" style="background:#ffffff;" data-color="#ffffff" title="Pure White"></div>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label><i class="fa-solid fa-vest"></i> Select Apparel Style</label>
+            <select id="style" class="form-select">
+                <option value="Hoodie">Hoodie / Sweatshirt</option>
+                <option value="Casual">Casual Shirt / Tee</option>
+                <option value="Oversized">Oversized Tee</option>
+                <option value="Frock">Formal Frock</option>
+                <option value="Jacket">Denim Jacket</option>
+                <option value="Formal">Formal Coat</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label><i class="fa-solid fa-scroll"></i> Select Fabric Texture</label>
+            <select id="fabric" class="form-select">
+                <option value="Cotton">Premium Cotton (+Rs. 0)</option>
+                <option value="Silk">Luxury Silk (+Rs. 2,500)</option>
+                <option value="Wool">Heavy Wool (+Rs. 2,000)</option>
+                <option value="Denim">Rugged Denim (+Rs. 1,200)</option>
+                <option value="Linen">Breathable Linen (+Rs. 900)</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label><i class="fa-solid fa-border-all"></i> Fabric Pattern</label>
+            <select id="pattern" class="form-select">
+                <option value="none">Solid Plain</option>
+                <option value="dots">Polka Dots</option>
+                <option value="lines">Striped Lines</option>
+                <option value="flower">Floral Print</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label><i class="fa-solid fa-font"></i> Custom Text / Slogan (Optional)</label>
+            <div style="display:flex; gap:10px;">
+                <input type="text" id="customTextInput" class="form-control" placeholder="e.g. EVIA ATHLETICS 2026" maxlength="30" />
+                <input type="color" id="textColorPicker" value="#FFFFFF" style="width:50px; height:44px; padding:2px; cursor:pointer;" title="Text Color" />
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label><i class="fa-solid fa-ruler-combined"></i> Select Base Size</label>
+            <select id="size" class="form-select">
+                <option value="Small">Small (36" Chest)</option>
+                <option value="Medium" selected>Medium (38" Chest)</option>
+                <option value="Large">Large (40" Chest)</option>
+                <option value="XL">Extra Large (42" Chest)</option>
+                <option value="XXL">Double XL (44" Chest)</option>
+            </select>
+        </div>
+
+        <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:12px;">
+            <div class="form-group">
+                <label>Chest (in)</label>
+                <input type="number" id="chest" class="form-control" value="38" min="20" max="70" />
+            </div>
+            <div class="form-group">
+                <label>Waist (in)</label>
+                <input type="number" id="waist" class="form-control" value="32" min="20" max="70" />
+            </div>
+            <div class="form-group">
+                <label>Length (in)</label>
+                <input type="number" id="length" class="form-control" value="28" min="20" max="70" />
+            </div>
+        </div>
+
+        <div style="display:flex; flex-direction:column; gap:12px; margin-top:20px;">
+            <button class="btn" id="saveDesignBtn">
+                <i class="fa-solid fa-floppy-disk"></i> Save Custom Outfit Design
+            </button>
+            <button class="btn btn-secondary" id="addToCartBtn" style="display:none; background:#10b981; border:none;">
+                <i class="fa-solid fa-bag-shopping"></i> Add Custom Outfit to Shopping Cart
+            </button>
+           @*  <button class="btn btn-secondary" id="aiPreviewBtn">
+                <i class="fa-solid fa-wand-magic-sparkles" style="color:var(--accent-gold);"></i> Generate Rendered Visual
+            </button> *@
+        </div>
+
+        <div id="statusMessage" class="message" style="margin-top:16px;"></div>
+    </div>
+
+    <!-- RIGHT SIDE: LIVE 2D SVG INTERACTIVE CANVAS PREVIEW -->
+    <div class="panel">
+
+        <h2 style="font-size:26px; margin-bottom:24px; text-align:center;">
+            <i class="fa-solid fa-eye"></i> Interactive Live Garment Preview
+        </h2>
+
+        <div class="canvas-preview-wrapper" id="previewCanvas">
+            <!-- Dynamic 2D Garment SVG -->
+            <svg id="garmentSvg" class="svg-garment-svg" viewBox="0 0 200 220" xmlns="http://www.w3.org/2000/svg">
+                <!-- Shirt Body Path -->
+                <path id="garmentBody" d="M 60 30 L 80 40 L 120 40 L 140 30 L 180 60 L 155 90 L 145 80 L 145 190 L 55 190 L 55 80 L 45 90 L 20 60 Z" fill="#111111" stroke="#334155" stroke-width="2"/>
+                <!-- Collar -->
+                <path d="M 80 40 Q 100 55 120 40" fill="none" stroke="#e5b869" stroke-width="3" />
+                <!-- Pocket -->
+                <rect id="garmentPocket" x="115" y="90" width="22" height="26" rx="3" fill="none" stroke="rgba(255,255,255,0.3)" stroke-width="1.5"/>
+            </svg>
+
+            <!-- Custom Text Layer Overlay -->
+            <div id="customTextOverlay" class="custom-text-layer" style="color:#FFFFFF;"></div>
+
+            <!-- Pattern texture overlay div -->
+            <div id="patternOverlay" style="position:absolute; inset:0; pointer-events:none; opacity:0.25;"></div>
+
+            <!-- Rendered Image Overlay -->
+            <img id="aiPreviewImg" src="" alt="Rendered Preview" style="display:none; position:absolute; inset:0; width:100%; height:100%; object-fit:cover;" />
+
+            <div id="aiLoading" style="display:none; position:absolute; inset:0; align-items:center; justify-content:center; color:white; font-weight:bold; background:rgba(15,20,28,0.85); flex-direction:column; gap:12px;">
+                <i class="fa-solid fa-circle-notch fa-spin" style="font-size:36px; color:var(--accent-gold);"></i>
+                Generating realistic visual render...
+            </div>
+            
+            <div class="style-tag" id="styleTag">Hoodie</div>
+        </div>
+
+        <div class="details" style="margin-top:24px; background:rgba(15,20,28,0.5); padding:20px; border-radius:var(--radius-md); border:1px solid var(--border-color);">
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; font-size:15px;">
+                <p><strong>Style:</strong> <span id="previewStyle">Hoodie</span></p>
+                <p><strong>Fabric:</strong> <span id="previewFabric">Cotton</span></p>
+                <p><strong>Pattern:</strong> <span id="previewPattern">Plain</span></p>
+                <p><strong>Size:</strong> <span id="previewSize">Medium</span></p>
+                <p><strong>Chest / Waist:</strong> <span id="previewSpecs">38" / 32"</span></p>
+                <p><strong>Length:</strong> <span id="previewLength">28"</span></p>
+            </div>
+            <hr style="border-color:var(--border-color); margin:14px 0;" />
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+                <span style="font-size:18px; font-weight:600;">Estimated Cost:</span>
+                <span id="previewPrice" style="font-size:24px; font-weight:800; color:var(--accent-gold);">Rs. 4,000</span>
+            </div>
+        </div>
+
+    </div>
+
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            let savedDesignId = null;
+            let currentAiImageUrl = null;
+
+            function updatePrice() {
+                let style = $("#style").val();
+                let fabric = $("#fabric").val();
+                let basePrice = 3000;
+
+                if (style === "Formal") basePrice = 6000;
+                else if (style === "Jacket") basePrice = 5500;
+                else if (style === "Frock") basePrice = 5000;
+                else if (style === "Hoodie") basePrice = 4000;
+                else if (style === "Oversized") basePrice = 3800;
+
+                let surcharge = 0;
+                if (fabric === "Silk") surcharge = 2500;
+                else if (fabric === "Wool") surcharge = 2000;
+                else if (fabric === "Denim") surcharge = 1200;
+                else if (fabric === "Linen") surcharge = 900;
+
+                let totalPrice = basePrice + surcharge;
+                $("#previewPrice").text("Rs. " + totalPrice.toLocaleString());
+            }
+
+            // COLOR & SWATCH HANDLERS
+            $("#colorPicker").on("input", function () {
+                let color = $(this).val();
+                $("#garmentBody").attr("fill", color);
+                $(".current-color-box").css("background-color", color);
+                $(".color-name").text(color);
+            });
+
+            $(".color-swatch").click(function () {
+                $(".color-swatch").removeClass("active");
+                $(this).addClass("active");
+                let color = $(this).data("color");
+                $("#colorPicker").val(color).trigger("input");
+            });
+
+            // STYLE CHANGE
+            $("#style").change(function () {
+                let val = $(this).val();
+                $("#previewStyle, #styleTag").text(val);
+                updatePrice();
+            });
+
+            // FABRIC & PATTERN
+            $("#fabric").change(function () {
+                $("#previewFabric").text($(this).val());
+                updatePrice();
+            });
+
+            $("#pattern").change(function () {
+                let pat = $(this).val();
+                $("#previewPattern").text(pat === "none" ? "Plain" : pat);
+                if (pat === "dots") {
+                    $("#patternOverlay").css("background-image", "radial-gradient(#ffffff 2px, transparent 2px)").css("background-size", "20px 20px");
+                } else if (pat === "lines") {
+                    $("#patternOverlay").css("background-image", "repeating-linear-gradient(45deg, rgba(255,255,255,0.4), rgba(255,255,255,0.4) 10px, transparent 10px, transparent 20px)");
+                } else {
+                    $("#patternOverlay").css("background-image", "none");
+                }
+            });
+
+            // CUSTOM TEXT & COLOR
+            $("#customTextInput").on("input", function () {
+                let text = $(this).val();
+                $("#customTextOverlay").text(text);
+            });
+
+            $("#textColorPicker").on("input", function () {
+                let color = $(this).val();
+                $("#customTextOverlay").css("color", color);
+            });
+
+            // MEASUREMENTS & SIZES
+            $("#size").change(function () {
+                $("#previewSize").text($(this).val());
+            });
+
+            $("#chest, #waist, #length").on("input", function () {
+                $("#previewSpecs").text($("#chest").val() + '" / ' + $("#waist").val() + '"');
+                $("#previewLength").text($("#length").val() + '"');
+            });
+
+            // SAVE DESIGN AJAX
+            $("#saveDesignBtn").click(function () {
+                let chest = parseFloat($("#chest").val());
+                let waist = parseFloat($("#waist").val());
+                let length = parseFloat($("#length").val());
+
+                if (!chest || !waist || !length) {
+                    showToast("Please enter valid chest, waist, and length measurements.", "error");
+                    return;
+                }
+
+                let payload = {
+                    color: $(".color-name").text(),
+                    style: $("#style").val(),
+                    fabric: $("#fabric").val(),
+                    pattern: $("#pattern").val(),
+                    size: $("#size").val(),
+                    customText: $("#customTextInput").val(),
+                    textColor: $("#textColorPicker").val(),
+                    chest: chest,
+                    waist: waist,
+                    length: length,
+                    generatedImageUrl: currentAiImageUrl
+                };
+
+                $.ajax({
+                    url: '@Url.Action("Save", "Design")',
+                    type: "POST",
+                    contentType: "application/json",
+                    headers: { "RequestVerificationToken": $('input[name="__RequestVerificationToken"]').val() },
+                    data: JSON.stringify(payload),
+                    success: function (res) {
+                        savedDesignId = res.designId;
+                        showToast(res.message, "success");
+                        $("#addToCartBtn").fadeIn();
+                    },
+                    error: function (xhr) {
+                        let err = xhr.responseJSON ? xhr.responseJSON.message : "Failed to save design.";
+                        showToast(err, "error");
+                    }
+                });
+            });
+
+            // ADD CUSTOM OUTFIT TO CART
+            $("#addToCartBtn").click(function () {
+                if (!savedDesignId) return;
+                var form = $('<form action="/Cart/AddCustomDesign" method="post">' +
+                    '<input type="hidden" name="designId" value="' + savedDesignId + '" />' +
+                    '</form>');
+                $('body').append(form);
+                form.submit();
+            });
+
+            // AI/RENDER PREVIEW
+            $("#aiPreviewBtn").click(function () {
+                let payload = {
+                    color: $(".color-name").text(),
+                    style: $("#style").val(),
+                    fabric: $("#fabric").val(),
+                    pattern: $("#pattern").val(),
+                    size: $("#size").val()
+                };
+
+                $("#aiLoading").css("display", "flex");
+
+                $.ajax({
+                    url: '@Url.Action("GenerateAiPreview", "Design")',
+                    type: "POST",
+                    contentType: "application/json",
+                    headers: { "RequestVerificationToken": $('input[name="__RequestVerificationToken"]').val() },
+                    data: JSON.stringify(payload),
+                    success: function (res) {
+                        currentAiImageUrl = res.imageUrl;
+                        $("#aiPreviewImg").attr("src", res.imageUrl).fadeIn();
+                        showToast("Visual preview updated!", "success");
+                    },
+                    error: function () {
+                        showToast("AI render unavailable right now.", "error");
+                    },
+                    complete: function () {
+                        $("#aiLoading").hide();
+                    }
+                });
+            });
+
+            updatePrice();
+        });
+    </script>
+}
+
+@Html.AntiForgeryToken()
+

@@ -1,0 +1,130 @@
+@model List<Evia.Web.Controllers.CartItemDto>
+@{
+    ViewData["Title"] = "Order Checkout";
+    decimal subtotal = Model.Sum(i => i.Price * i.Quantity);
+    decimal discountRate = ViewBag.PromoDiscount is decimal d ? d : 0m;
+    decimal discount = subtotal * discountRate;
+    decimal shipping = subtotal > 5000 ? 0 : 250;
+    decimal grandTotal = subtotal - discount + shipping;
+}
+
+<section class="section">
+    <div style="display:grid; grid-template-columns:1fr 380px; gap:40px; align-items:start;">
+
+        <div class="panel">
+            <h2 style="margin-bottom:24px;"><i class="fa-solid fa-truck-fast" style="color:var(--accent-gold);"></i> Shipping &amp; Payment Details</h2>
+
+            @if (!ViewData.ModelState.IsValid)
+            {
+                <div class="toast-item" style="border-color:var(--accent-rose); margin-bottom:20px;">
+                    @foreach (var error in ViewData.ModelState.SelectMany(kv => kv.Value!.Errors))
+                    {
+                        <p style="color:var(--accent-rose); font-size:14px;"><i class="fa-solid fa-triangle-exclamation"></i> @error.ErrorMessage</p>
+                    }
+                </div>
+            }
+
+            <form asp-controller="Checkout" asp-action="PlaceOrder" method="post">
+
+                <div class="form-group">
+                    <label><i class="fa-solid fa-user"></i> Full Name</label>
+                    <input type="text" class="form-control" value="@ViewBag.UserFullName" readonly style="opacity:0.8;" />
+                </div>
+
+                <div class="form-group">
+                    <label><i class="fa-solid fa-location-dot"></i> Delivery Address <span style="color:var(--accent-rose);">*</span></label>
+                    <textarea name="shippingAddress" class="form-control" rows="3" placeholder="Enter street address, city, postal code..." required>@ViewBag.UserAddress</textarea>
+                </div>
+
+                <div class="form-group">
+                    <label><i class="fa-solid fa-wallet"></i> Choose Payment Method</label>
+                    <select name="paymentMethod" id="paymentMethodSelect" class="form-select">
+                        <option value="Cash on Delivery">Cash on Delivery (COD)</option>
+                        <option value="Credit/Debit Card">Credit / Debit Card (Visa/MasterCard)</option>
+                        <option value="JazzCash / EasyPaisa">JazzCash / EasyPaisa Mobile Wallet</option>
+                    </select>
+                </div>
+
+                <!-- Card details simulation section -->
+                <div id="cardDetailsSection" style="display:none; background:#0f141c; padding:20px; border-radius:var(--radius-md); border:1px solid var(--border-color); margin-bottom:24px;">
+                    <h4 style="font-size:15px; margin-bottom:14px; color:var(--accent-gold);"><i class="fa-solid fa-credit-card"></i> Card Information</h4>
+                    <div class="form-group">
+                        <label style="font-size:12px;">Card Number</label>
+                        <input type="text" class="form-control" placeholder="1234 5678 9012 3456" maxlength="19" />
+                    </div>
+                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
+                        <div class="form-group">
+                            <label style="font-size:12px;">Expiry Date</label>
+                            <input type="text" class="form-control" placeholder="MM/YY" maxlength="5" />
+                        </div>
+                        <div class="form-group">
+                            <label style="font-size:12px;">CVC / CVV</label>
+                            <input type="password" class="form-control" placeholder="123" maxlength="4" />
+                        </div>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn" style="width:100%; font-size:16px; min-height:48px;">
+                    <i class="fa-solid fa-lock"></i> Confirm &amp; Place Order (Rs. @grandTotal.ToString("N0"))
+                </button>
+            </form>
+        </div>
+
+        <!-- Order Items Breakdown -->
+        <div class="panel" style="padding:24px;">
+            <h3 style="font-size:20px; margin-bottom:20px; border-bottom:1px solid var(--border-color); padding-bottom:12px;">Items in Order</h3>
+            
+            <div style="display:flex; flex-direction:column; gap:12px; margin-bottom:20px; max-height:300px; overflow-y:auto; padding-right:6px;">
+                @foreach (var item in Model)
+                {
+                    <div style="display:flex; justify-content:space-between; align-items:center; font-size:14px;">
+                        <div>
+                            <div style="font-weight:600;">@item.Name</div>
+                            <div style="font-size:12px; color:var(--text-muted);">Qty: @item.Quantity &bull; @item.Type</div>
+                        </div>
+                        <div style="font-weight:700; color:var(--accent-gold);">Rs. @((item.Price * item.Quantity).ToString("N0"))</div>
+                    </div>
+                }
+            </div>
+
+            <hr style="border-color:var(--border-color); margin:16px 0;" />
+
+            <div style="display:flex; justify-content:space-between; margin-bottom:10px; color:var(--text-muted); font-size:14px;">
+                <span>Subtotal:</span>
+                <span>Rs. @subtotal.ToString("N0")</span>
+            </div>
+            @if (discount > 0)
+            {
+                <div style="display:flex; justify-content:space-between; margin-bottom:10px; color:#10b981; font-size:14px;">
+                    <span>Discount:</span>
+                    <span>- Rs. @discount.ToString("N0")</span>
+                </div>
+            }
+            <div style="display:flex; justify-content:space-between; margin-bottom:16px; color:var(--text-muted); font-size:14px;">
+                <span>Shipping:</span>
+                <span>@(shipping == 0 ? "FREE" : "Rs. " + shipping.ToString("N0"))</span>
+            </div>
+
+            <div style="display:flex; justify-content:space-between; font-size:20px; font-weight:800; border-top:1px solid var(--border-color); padding-top:14px;">
+                <span>Total:</span>
+                <span style="color:var(--accent-gold);">Rs. @grandTotal.ToString("N0")</span>
+            </div>
+        </div>
+
+    </div>
+</section>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            $("#paymentMethodSelect").change(function () {
+                if ($(this).val() === "Credit/Debit Card") {
+                    $("#cardDetailsSection").slideDown();
+                } else {
+                    $("#cardDetailsSection").slideUp();
+                }
+            });
+        });
+    </script>
+}
+

@@ -1,0 +1,115 @@
+@{
+    ViewData["Title"] = "Admin Dashboard";
+    var recentOrders = ViewBag.RecentOrders as List<Order> ?? new List<Order>();
+    var lowStockProducts = ViewBag.LowStockProducts as List<Product> ?? new List<Product>();
+}
+
+<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:24px;">
+    <h2><i class="fa-solid fa-chart-line" style="color:var(--accent-gold);"></i> Platform Overview Dashboard</h2>
+    <a asp-area="Admin" asp-controller="Products" asp-action="Create" class="btn">
+        <i class="fa-solid fa-plus"></i> Add New Product
+    </a>
+</div>
+
+<!-- KPI Cards Grid -->
+<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:20px; margin-bottom:30px;">
+    <div class="panel" style="padding:24px; text-align:center; border-top:4px solid var(--accent-gold);">
+        <div style="font-size:32px; font-weight:800; color:var(--accent-gold);">Rs. @(((decimal)(ViewBag.TotalRevenue ?? 0m)).ToString("N0"))</div>
+        <div style="font-size:14px; color:var(--text-muted); margin-top:6px;"><i class="fa-solid fa-money-bill-wave"></i> Total Revenue</div>
+    </div>
+    <div class="panel" style="padding:24px; text-align:center; border-top:4px solid #2563eb;">
+        <div style="font-size:32px; font-weight:800; color:white;">@ViewBag.OrderCount</div>
+        <div style="font-size:14px; color:var(--text-muted); margin-top:6px;"><i class="fa-solid fa-box"></i> Total Orders</div>
+    </div>
+    <div class="panel" style="padding:24px; text-align:center; border-top:4px solid #10b981;">
+        <div style="font-size:32px; font-weight:800; color:white;">@ViewBag.ProductCount</div>
+        <div style="font-size:14px; color:var(--text-muted); margin-top:6px;"><i class="fa-solid fa-shirt"></i> Catalog Products</div>
+    </div>
+    <div class="panel" style="padding:24px; text-align:center; border-top:4px solid #7c3aed;">
+        <div style="font-size:32px; font-weight:800; color:white;">@ViewBag.DesignCount</div>
+        <div style="font-size:14px; color:var(--text-muted); margin-top:6px;"><i class="fa-solid fa-wand-magic-sparkles"></i> Custom Designs</div>
+    </div>
+    <div class="panel" style="padding:24px; text-align:center; border-top:4px solid #d97706;">
+        <div style="font-size:32px; font-weight:800; color:white;">@ViewBag.MessageCount</div>
+        <div style="font-size:14px; color:var(--text-muted); margin-top:6px;"><i class="fa-solid fa-envelope"></i> Contact Queries</div>
+    </div>
+</div>
+
+<div style="display:grid; grid-template-columns:1fr 1fr; gap:30px;">
+    <!-- Recent Orders Table -->
+    <div class="panel" style="padding:24px;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+            <h3 style="font-size:18px;"><i class="fa-solid fa-clock-rotate-left"></i> Recent Orders</h3>
+            <a asp-area="Admin" asp-controller="Dashboard" asp-action="Orders" style="font-size:13px; color:var(--accent-gold);">View All</a>
+        </div>
+
+        @if (recentOrders.Count == 0)
+        {
+            <p style="color:var(--text-muted); font-size:14px;">No recent orders recorded.</p>
+        }
+        else
+        {
+            <table class="cart-table" style="font-size:13px;">
+                <thead>
+                    <tr>
+                        <th>Order ID</th>
+                        <th>User</th>
+                        <th>Amount</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var ord in recentOrders)
+                    {
+                        <tr>
+                            <td>#@ord.Id</td>
+                            <td>@(ord.User?.FullName ?? ord.UserId)</td>
+                            <td>Rs. @ord.TotalAmount.ToString("N0")</td>
+                            <td><span class="badge-status badge-pending">@ord.Status</span></td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        }
+    </div>
+
+    <!-- Low Stock Inventory Alerts -->
+    <div class="panel" style="padding:24px;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+            <h3 style="font-size:18px;"><i class="fa-solid fa-triangle-exclamation" style="color:#d97706;"></i> Low Stock Alerts</h3>
+            <a asp-area="Admin" asp-controller="Products" asp-action="Index" style="font-size:13px; color:var(--accent-gold);">Manage Catalog</a>
+        </div>
+
+        @if (lowStockProducts.Count == 0)
+        {
+            <p style="color:#10b981; font-size:14px;"><i class="fa-solid fa-circle-check"></i> All inventory stock levels are healthy.</p>
+        }
+        else
+        {
+            <table class="cart-table" style="font-size:13px;">
+                <thead>
+                    <tr>
+                        <th>Product</th>
+                        <th>Category</th>
+                        <th>Stock Left</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var prod in lowStockProducts)
+                    {
+                        <tr>
+                            <td>@prod.Name</td>
+                            <td>@prod.Category</td>
+                            <td style="color:var(--accent-rose); font-weight:700;">@prod.StockQuantity items</td>
+                            <td>
+                                <a asp-area="Admin" asp-controller="Products" asp-action="Edit" asp-route-id="@prod.Id" style="color:var(--accent-gold);">Restock</a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        }
+    </div>
+</div>
+

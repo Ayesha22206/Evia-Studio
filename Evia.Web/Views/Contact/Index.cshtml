@@ -1,0 +1,40 @@
+@model ContactMessage
+@{
+    ViewData["Title"] = "Contact";
+}
+
+<div style="max-width: 600px; margin: 0 auto;">
+    <div class="panel contact-content">
+        <h2 style="font-size:26px; margin-bottom:24px; color:var(--accent-gold); text-align:center;">
+            <i class="fa-solid fa-envelope"></i> Get in Touch
+        </h2>
+
+        @if (ViewBag.Sent == true)
+        {
+            <div class="admin-alert" style="margin-bottom:24px;">
+                <i class="fa-solid fa-circle-check"></i> Thanks for reaching out — we'll get back to you soon!
+            </div>
+        }
+
+        <form asp-controller="Contact" asp-action="Index" method="post">
+            <div class="form-group">
+                <label asp-for="FullName"><i class="fa-solid fa-user" style="color:var(--text-muted); margin-right:6px;"></i>Full Name</label>
+                <input asp-for="FullName" class="form-control" placeholder="Your name" />
+                <span asp-validation-for="FullName" class="text-danger" style="color:var(--accent-rose); font-size:12px;"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Email"><i class="fa-solid fa-at" style="color:var(--text-muted); margin-right:6px;"></i>Email Address</label>
+                <input asp-for="Email" type="email" class="form-control" placeholder="you@example.com" />
+                <span asp-validation-for="Email" class="text-danger" style="color:var(--accent-rose); font-size:12px;"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Content"><i class="fa-solid fa-comment-dots" style="color:var(--text-muted); margin-right:6px;"></i>Message</label>
+                <textarea asp-for="Content" rows="5" class="form-control" placeholder="How can we help you?"></textarea>
+                <span asp-validation-for="Content" class="text-danger" style="color:var(--accent-rose); font-size:12px;"></span>
+            </div>
+            <button type="submit" class="btn" style="width:100%; margin-top:10px;">
+                <i class="fa-solid fa-paper-plane"></i> Send Message
+            </button>
+        </form>
+    </div>
+</div>

@@ -1,0 +1,83 @@
+@model Product
+@{
+    ViewData["Title"] = Model.Name;
+    var related = ViewBag.RelatedProducts as List<Product> ?? new List<Product>();
+}
+
+<section class="section">
+    <div style="margin-bottom:20px;">
+        <a asp-controller="Shop" asp-action="Index" style="color:var(--accent-gold); font-weight:600;"><i class="fa-solid fa-arrow-left"></i> Back to Shop</a>
+    </div>
+
+    <div class="panel" style="display:grid; grid-template-columns:1fr 1fr; gap:40px; align-items:start;">
+        <div>
+            <img src="@Model.ImageUrl" alt="@Model.Name" style="width:100%; max-height:500px; border-radius:var(--radius-md); object-fit:cover;" onerror="this.src='/images/product-placeholder.jpg'" />
+        </div>
+
+        <div>
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+                <span class="badge-status badge-processing">@Model.Category &bull; @Model.Style</span>
+                @if (Model.StockQuantity > 0)
+                {
+                    <span class="badge-status badge-delivered"><i class="fa-solid fa-check"></i> In Stock (@Model.StockQuantity)</span>
+                }
+                else
+                {
+                    <span class="badge-status badge-cancelled">Out of Stock</span>
+                }
+            </div>
+
+            <h1 style="font-size:32px; font-weight:800; margin-bottom:12px;">@Model.Name</h1>
+            <p style="font-size:28px; font-weight:800; color:var(--accent-gold); margin-bottom:20px;">Rs. @Model.Price.ToString("N0")</p>
+            <p style="color:var(--text-muted); line-height:1.7; margin-bottom:24px;">@Model.Description</p>
+
+            <form asp-controller="Cart" asp-action="AddProduct" method="post" class="panel" style="background:#0f141c; padding:20px;">
+                <input type="hidden" name="productId" value="@Model.Id" />
+
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:20px;">
+                    <div>
+                        <label style="font-size:13px; font-weight:600; margin-bottom:6px; display:block;">Select Size</label>
+                        <select name="selectedSize" class="form-select">
+                            @foreach (var sz in (Model.AvailableSizes ?? "S, M, L, XL").Split(','))
+                            {
+                                <option value="@sz.Trim()">Size @sz.Trim()</option>
+                            }
+                        </select>
+                    </div>
+                    <div>
+                        <label style="font-size:13px; font-weight:600; margin-bottom:6px; display:block;">Quantity</label>
+                        <input type="number" name="quantity" value="1" min="1" max="@(Model.StockQuantity > 0 ? Model.StockQuantity : 1)" class="form-control" />
+                    </div>
+                </div>
+
+                <button type="submit" class="btn" style="width:100%; min-height:48px;" @(Model.StockQuantity <= 0 ? "disabled" : "")>
+                    <i class="fa-solid fa-cart-plus"></i> Add to Cart
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Related Products -->
+    @if (related.Count > 0)
+    {
+        <div style="margin-top:60px;">
+            <h3 style="font-size:24px; margin-bottom:24px;">You May Also Like</h3>
+            <div class="product-grid">
+                @foreach (var prod in related)
+                {
+                    <div class="product-card">
+                        <img src="@prod.ImageUrl" alt="@prod.Name" onerror="this.src='/images/product-placeholder.jpg'" />
+                        <div class="info">
+                            <h4 class="title">@prod.Name</h4>
+                            <span class="price">Rs. @prod.Price.ToString("N0")</span>
+                            <a class="btn btn-secondary" asp-controller="Shop" asp-action="Details" asp-route-id="@prod.Id">
+                                View
+                            </a>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    }
+</section>
+
